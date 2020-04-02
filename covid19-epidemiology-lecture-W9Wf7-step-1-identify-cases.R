@@ -2,6 +2,7 @@
 
 # a quick attempt to use R to analyze the data presented in the video on this page:
 # https://www.coursera.org/learn/covid19-epidemiology/lecture/W9Wf7/step-1-identify-cases
+# Make a definition for suspected, probable, and confirmed cases for the following outbreak
 
 # DEPENDENCIES -----------------------------------------------------------------
 
@@ -66,35 +67,36 @@ confirmed_case[ idx ] <- NA
 # extract case IDs
 id <- df$ID
 
-# now combine our cleaned data into a data.frame
-df2 <- data.frame(has_discolored_swollen_lymph_node,
-                  has_fatigue,
-                  has_fever,
-                  has_headache,
-                  has_muscle_aches,
-                  onset_month,
-                  onset_day,
-                  id,
-                  confirmed_case,
-                  stringsAsFactors = FALSE)
-print(df2)
+# now combine our cleaned data into a data.frame (our line list)
+line_list <- data.frame(has_discolored_swollen_lymph_node,
+                        has_fatigue,
+                        has_fever,
+                        has_headache,
+                        has_muscle_aches,
+                        onset_month,
+                        onset_day,
+                        id,
+                        confirmed_case,
+                        case_type = NA,
+                        stringsAsFactors = FALSE)
+print(line_list)
 
 # ANALYZE DATA -----------------------------------------------------------------
 
 # analyze symptoms of confirmed cases
-idx <- which(df2$confirmed_case) # these are our confirmed cases
+idx <- which(line_list$confirmed_case) # these are our confirmed cases
 
 # which symptom is present in all confirmed cases?
-(apply(df2[ idx, 1:5 ], 2, all))
+(apply(line_list[ idx, 1:5 ], 2, all))
 # fever is present in all confirmed cases
 
 # which symptoms are present in some or all confirmed cases?
-(apply(df2[ idx, 1:5 ], 2, any))
+(apply(line_list[ idx, 1:5 ], 2, any))
 # discolored / swollen lymph nodes, fever, headache, muscle aches are present some or all confirmed cases
 # fatigue is not present in any of the confirmed cases
 
 # what is the percentage of cases where we find these symptoms?
-(apply(df2[ idx, 1:5 ], 2, which) %>%
+(apply(line_list[ idx, 1:5 ], 2, which) %>%
         lapply(., length) %>%
         lapply(., '/', sum(confirmed_case, na.rm = TRUE))
 )
@@ -104,10 +106,10 @@ idx <- which(df2$confirmed_case) # these are our confirmed cases
 # we find headache in ~ 33% of confirmed cases
 
 # how many people per day experienced onset of symptoms?
-hist(as.integer(df2$onset_day), breaks = c(15:19), main = 'onset of symptoms', xlab = 'day')
+hist(as.integer(line_list$onset_day), breaks = c(15:19), main = 'onset of symptoms', xlab = 'day')
 
 # fatigue and onset date of the symptoms don't really appear to have any predictive value (???)
-print(df2[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ])
+print(line_list[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ])
 # all confirmed cases experienced onset between Mar 15 - 17, but they are only classified
 # as confirmed since they have positive laboratory tests, which would make sense
 # if they were amongst the first to fall ill?
@@ -126,23 +128,27 @@ print(df2[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ]
 # https://www.coursera.org/learn/covid19-epidemiology/discussions/weeks/1/threads/1AFymgQWRLuBcpoEFhS7Pw
 
 # extract suspected cases
-idx <- which(df2$has_discolored_swollen_lymph_node |
-                 df2$has_fever |
-                 df2$has_headache |
-                 df2$has_muscle_aches)
-print(df2[ idx, ]) # here are all of our suspected cases
+idx <- which(line_list$has_discolored_swollen_lymph_node |
+                 line_list$has_fever |
+                 line_list$has_headache |
+                 line_list$has_muscle_aches)
+print(line_list[ idx, ]) # here are all of our suspected cases
+line_list[ idx, 'case_type' ] <- 'SUSPECTED'
 
 # extract probable cases
-idx <- which(df2$has_fever &
-                 (df2$has_discolored_swollen_lymph_node |
-                      df2$has_headache |
-                      df2$has_muscle_aches))
-print(df2[ idx, ]) # here are all of our probable cases
+idx <- which(line_list$has_fever &
+                 (line_list$has_discolored_swollen_lymph_node |
+                      line_list$has_headache |
+                      line_list$has_muscle_aches))
+print(line_list[ idx, ]) # here are all of our probable cases
+line_list[ idx, 'case_type' ] <- 'PROBABLE'
 
 # extract confirmed cases
-idx <- which(df2$confirmed_case)
-print(df2[ idx, ]) # here are all of our confirmed cases
+idx <- which(line_list$confirmed_case)
+print(line_list[ idx, ]) # here are all of our confirmed cases
+line_list[ idx, 'case_type' ] <- 'CONFIRMED'
 
+print(line_list)
 # on this data set our criteria appear to work, we progressively narrow down our
 # range of cases from suspected to probable to confirmed and (more importantly)
 # we don't miss any confirmed cases!
