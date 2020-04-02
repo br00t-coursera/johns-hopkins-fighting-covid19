@@ -1,14 +1,14 @@
-# notes ------------------------------------------------------------------------
+# NOTES ------------------------------------------------------------------------
 
 # a quick attempt to use R to analyze the data presented in the video on this page:
 # https://www.coursera.org/learn/covid19-epidemiology/lecture/W9Wf7/step-1-identify-cases
 
-# dependencies -----------------------------------------------------------------
+# DEPENDENCIES -----------------------------------------------------------------
 
 library(readr)
 library(stringr)
 
-# data -------------------------------------------------------------------------
+# DATA -------------------------------------------------------------------------
 
 data_str <- 'ID	Onset	Symptoms	Lab Result
 1	March 15	Fever, muscle aches, discolored/swollen lymph node	Positive
@@ -22,10 +22,10 @@ data_str <- 'ID	Onset	Symptoms	Lab Result
 9	March 17	Fever	Missing
 10	March 18	Fever	Missing'
 
-# load data --------------------------------------------------------------------
+# LOAD DATA --------------------------------------------------------------------
 df <- read_delim(data_str, delim = '\t')
 
-# clean data -------------------------------------------------------------------
+# CLEAN DATA -------------------------------------------------------------------
 
 # clean onset data
 onset_month <- str_split(df$Onset, ' ') %>% sapply(., '[', 1)
@@ -38,28 +38,30 @@ symptoms <- str_split(df$Symptoms, ',') %>% # split comma-separated string into 
     lapply(., str_replace_all, '\\s+', ' ') %>%  # remove excess whitespace
     lapply(., tolower) %>% lapply(., sort) # sort tokens alphabetically
 
-# analyze data -----------------------------------------------------------------
-
-# suspected case: a person for whom there is a suspicion of the disease but no strong evidence
-# or laboratory confirmation
-# probable case: a suspected case for whom there is strong circumstantial evidence of infection
-# for example, exposure to a known case
-# confirmed case: a person for whom there is definitive clinical or laboratory confirmation
-# that he or she is a case
-lab_result <- df$`Lab Result`
-confirmed_case <- str_detect(lab_result, 'Positive')
-idx <- str_detect(lab_result, 'Missing')
-confirmed_case[ idx ] <- NA
-
-# what are all possible symptoms one can experience?
+# what are all possible symptoms experienced by subjects in our data set?
 (unlist(symptoms) %>% unique %>% sort)
 
-# let's put our data into a tidier format
+# let's put our symptom data into a tidier format, more amenable to analysis
 has_discolored_swollen_lymph_node <- str_detect(symptoms, 'discolored/swollen lymph node')
 has_fatigue <- str_detect(symptoms, 'fatigue')
 has_fever <- str_detect(symptoms, 'fever')
 has_headache <- str_detect(symptoms, 'headache')
 has_muscle_aches <- str_detect(symptoms, 'muscle aches')
+
+# probably productive to start out by looking at symptoms associated with confirmed
+# cases. let's review what we learned the lecture with respect to classification
+# of cases:
+#     1. suspected case: a person for whom there is a suspicion of the disease but no strong evidence
+#     or laboratory confirmation
+#     2. probable case: a suspected case for whom there is strong circumstantial evidence of infection
+#     for example, exposure to a known case
+#     3. confirmed case: a person for whom there is definitive clinical or laboratory confirmation
+#     that he or she is a case
+# let's identify who in our data set is a confirmed case
+lab_result <- df$`Lab Result`
+confirmed_case <- str_detect(lab_result, 'Positive')
+idx <- str_detect(lab_result, 'Missing')
+confirmed_case[ idx ] <- NA
 
 # extract case IDs
 id <- df$ID
@@ -76,13 +78,21 @@ df2 <- data.frame(has_discolored_swollen_lymph_node,
                   confirmed_case)
 print(df2)
 
+# ANALYZE DATA -----------------------------------------------------------------
+
 # analyze symptoms of confirmed cases
 idx <- which(df2$confirmed_case) # these are our confirmed cases
 
-(apply(df2[ idx, 1:5 ], 2, all)) # which symptom is present in all confirmed cases? fever
+# which symptom is present in all confirmed cases?
+(apply(df2[ idx, 1:5 ], 2, all))
+# fever is present in all confirmed cases
 
-(apply(df2[ idx, 1:5 ], 2, any)) # which symptoms are present in any or all confirmed cases: discolored / swollen lymph nodes, fever, headache, muscle aches
+# which symptoms are present in some or all confirmed cases?
+(apply(df2[ idx, 1:5 ], 2, any))
+# discolored / swollen lymph nodes, fever, headache, muscle aches are present some or all confirmed cases
+# fatigue is not present in any of the confirmed cases
 
+# what is the percentage of cases where we find these symptoms?
 (apply(df2[ idx, 1:5 ], 2, which) %>%
     lapply(., length) %>%
     lapply(., '/', sum(confirmed_case, na.rm = TRUE))
@@ -92,31 +102,32 @@ idx <- which(df2$confirmed_case) # these are our confirmed cases
 # we find muscle ache in ~ 67% of confirmed cases
 # we find headache in ~ 33% of confirmed cases
 
-# fatigue and onset date of the symptoms don't appear to have any predictive value (???)
+# fatigue and onset date of the symptoms don't really appear to have any predictive value (???)
 print(df2[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ])
 
-# conclusions ------------------------------------------------------------------
+# CONCLUSIONS ------------------------------------------------------------------
 
-# so we create the following definitions
-# suspected cases: anyone with any of the following symptoms: discolored/swollen lymph node, fever, headache, muscle aches
-# probable cases: anyone with a fever and any one of the following symptoms:  discolored / swollen lymph nodes, muscle aches, headache
-# confirmed cases: anyone with positive lab results
+# based on the results of our simple analysis we create the following criteria
+# to define what type of case a person may have:
+#     1. suspected cases: anyone with any of the following symptoms: discolored/swollen lymph node, fever, headache, muscle aches
+#     2. probable cases: anyone with a fever and any one of the following symptoms:  discolored / swollen lymph nodes, muscle aches, headache
+#     3. confirmed cases: anyone with positive lab results
 
-# suspected cases
+# extract suspected cases
 idx <- which(df2$has_discolored_swollen_lymph_node |
                  df2$has_fever |
                  df2$has_headache |
                  df2$has_muscle_aches)
 print(df2[ idx, ]) # here are all of our suspected cases
 
-# probable cases
+# extract probable cases
 idx <- which(df2$has_fever &
                  (df2$has_discolored_swollen_lymph_node |
                                   df2$has_headache |
                                   df2$has_muscle_aches))
-print(df2[ idx, ]) # here are all of our probably cases
+print(df2[ idx, ]) # here are all of our probable cases
 
-# confirmed cases: anyone with positive lab results
+# extract confirmed cases
 idx <- which(df2$confirmed_case)
 print(df2[ idx, ]) # here are all of our confirmed cases
 
