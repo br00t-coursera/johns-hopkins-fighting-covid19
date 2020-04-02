@@ -108,6 +108,9 @@ hist(as.integer(df2$onset_day), breaks = c(15:19), main = 'onset of symptoms', x
 
 # fatigue and onset date of the symptoms don't really appear to have any predictive value (???)
 print(df2[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ])
+# all confirmed cases experienced onset between Mar 15 - 17, but they are only classified
+# as confirmed since they have positive laboratory tests, which would make sense
+# if they were amongst the first to fall ill?
 
 # CONCLUSIONS ------------------------------------------------------------------
 
@@ -118,6 +121,9 @@ print(df2[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ]
 #     2. probable cases: anyone with a fever and any one of the following symptoms:
 #     discolored / swollen lymph nodes, muscle aches, headache
 #     3. confirmed cases: anyone with positive lab results
+# there is some debate about the difference between a suspected and probable case
+# the instructors weigh in on this issue in this thread:
+# https://www.coursera.org/learn/covid19-epidemiology/discussions/weeks/1/threads/1AFymgQWRLuBcpoEFhS7Pw
 
 # extract suspected cases
 idx <- which(df2$has_discolored_swollen_lymph_node |
