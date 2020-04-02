@@ -109,8 +109,10 @@ print(df2[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ]
 
 # based on the results of our simple analysis we create the following criteria
 # to define what type of case a person may have:
-#     1. suspected cases: anyone with any of the following symptoms: discolored/swollen lymph node, fever, headache, muscle aches
-#     2. probable cases: anyone with a fever and any one of the following symptoms:  discolored / swollen lymph nodes, muscle aches, headache
+#     1. suspected cases: anyone with any of the following symptoms:
+#     discolored/swollen lymph node, fever, headache, muscle aches
+#     2. probable cases: anyone with a fever and any one of the following symptoms:
+#     discolored / swollen lymph nodes, muscle aches, headache
 #     3. confirmed cases: anyone with positive lab results
 
 # extract suspected cases
