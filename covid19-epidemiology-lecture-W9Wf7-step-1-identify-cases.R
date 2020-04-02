@@ -107,18 +107,18 @@ idx <- which(df2$has_discolored_swollen_lymph_node |
                  df2$has_fever |
                  df2$has_headache |
                  df2$has_muscle_aches)
-print(df2[ idx, ])
+print(df2[ idx, ]) # here are all of our suspected cases
 
 # probable cases
 idx <- which(df2$has_fever &
                  (df2$has_discolored_swollen_lymph_node |
                                   df2$has_headache |
                                   df2$has_muscle_aches))
-print(df2[ idx, ])
+print(df2[ idx, ]) # here are all of our probably cases
 
 # confirmed cases: anyone with positive lab results
 idx <- which(df2$confirmed_case)
-print(df2[ idx, ]) # here are the IDs of confirmed cases
+print(df2[ idx, ]) # here are all of our confirmed cases
 
 # on this data set our criteria appear to work, we progressively narrow down our
 # range of cases from suspected to probable to confirmed and (more importantly)
