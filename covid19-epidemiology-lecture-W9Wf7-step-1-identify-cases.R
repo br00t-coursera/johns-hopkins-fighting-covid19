@@ -75,7 +75,8 @@ df2 <- data.frame(has_discolored_swollen_lymph_node,
                   onset_month,
                   onset_day,
                   id,
-                  confirmed_case)
+                  confirmed_case,
+                  stringsAsFactors = FALSE)
 print(df2)
 
 # ANALYZE DATA -----------------------------------------------------------------
@@ -94,13 +95,16 @@ idx <- which(df2$confirmed_case) # these are our confirmed cases
 
 # what is the percentage of cases where we find these symptoms?
 (apply(df2[ idx, 1:5 ], 2, which) %>%
-    lapply(., length) %>%
-    lapply(., '/', sum(confirmed_case, na.rm = TRUE))
+        lapply(., length) %>%
+        lapply(., '/', sum(confirmed_case, na.rm = TRUE))
 )
 # we find fever in 100% of confirmed cases
 # we find discolored / swollen lymph nodes in ~ 67% of confirmed cases
 # we find muscle ache in ~ 67% of confirmed cases
 # we find headache in ~ 33% of confirmed cases
+
+# how many people per day experienced onset of symptoms?
+hist(as.integer(df2$onset_day), breaks = c(15:19), main = 'onset of symptoms', xlab = 'day')
 
 # fatigue and onset date of the symptoms don't really appear to have any predictive value (???)
 print(df2[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ])
@@ -125,8 +129,8 @@ print(df2[ idx, ]) # here are all of our suspected cases
 # extract probable cases
 idx <- which(df2$has_fever &
                  (df2$has_discolored_swollen_lymph_node |
-                                  df2$has_headache |
-                                  df2$has_muscle_aches))
+                      df2$has_headache |
+                      df2$has_muscle_aches))
 print(df2[ idx, ]) # here are all of our probable cases
 
 # extract confirmed cases
