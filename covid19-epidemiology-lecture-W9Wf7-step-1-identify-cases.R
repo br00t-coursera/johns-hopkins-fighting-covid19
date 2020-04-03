@@ -37,7 +37,8 @@ symptoms <- str_split(df$Symptoms, ',') %>% # split comma-separated string into 
     lapply(., str_replace_all, '\\.', '') %>%  # remove extraneous characters
     lapply(., str_trim) %>% # remove excess whitespace
     lapply(., str_replace_all, '\\s+', ' ') %>%  # remove excess whitespace
-    lapply(., tolower) %>% lapply(., sort) # sort tokens alphabetically
+    lapply(., tolower) %>% # convert to lowercase
+    lapply(., sort) # sort tokens alphabetically
 
 # what are all possible symptoms experienced by subjects in our data set?
 (unlist(symptoms) %>% unique %>% sort)
@@ -106,7 +107,10 @@ idx <- which(line_list$confirmed_case) # these are our confirmed cases
 # we find headache in ~ 33% of confirmed cases
 
 # how many people per day experienced onset of symptoms?
-hist(as.integer(line_list$onset_day), breaks = c(15:19), main = 'onset of symptoms', xlab = 'day')
+hist(as.integer(line_list$onset_day),
+     breaks = c(15:19),
+     main = 'onset of symptoms',
+     xlab = 'day')
 
 # fatigue and onset date of the symptoms don't really appear to have any predictive value (???)
 print(line_list[ idx, c('has_fatigue', 'onset_month', 'onset_day', 'confirmed_case') ])
@@ -132,21 +136,21 @@ idx <- which(line_list$has_discolored_swollen_lymph_node |
                  line_list$has_fever |
                  line_list$has_headache |
                  line_list$has_muscle_aches)
-print(line_list[ idx, ]) # here are all of our suspected cases
 line_list[ idx, 'case_type' ] <- 'SUSPECTED'
+print(line_list[ idx, ]) # here are all of our suspected cases
 
 # extract probable cases
 idx <- which(line_list$has_fever &
                  (line_list$has_discolored_swollen_lymph_node |
                       line_list$has_headache |
                       line_list$has_muscle_aches))
-print(line_list[ idx, ]) # here are all of our probable cases
 line_list[ idx, 'case_type' ] <- 'PROBABLE'
+print(line_list[ idx, ]) # here are all of our probable cases
 
 # extract confirmed cases
 idx <- which(line_list$confirmed_case)
-print(line_list[ idx, ]) # here are all of our confirmed cases
 line_list[ idx, 'case_type' ] <- 'CONFIRMED'
+print(line_list[ idx, ]) # here are all of our confirmed cases
 
 print(line_list)
 # on this data set our criteria appear to work, we progressively narrow down our
