@@ -6,7 +6,7 @@ In light of the recent SARS-CoV-2 pandemic, I have decided to follow this amazin
 
 https://www.coursera.org/learn/covid19-epidemiology
 
-I have creating this repo to share code that I write to help myself understand what is going on in the course. I hope it is helpful to someone out there.
+I have created this repo to share code that I write to help myself understand what is going on in the course. I hope it is helpful to someone out there.
 
 ## Running the Code
 
