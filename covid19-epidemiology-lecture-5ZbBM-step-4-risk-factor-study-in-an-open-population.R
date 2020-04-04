@@ -46,3 +46,9 @@ relative_risk[ idx ] <- NA # relative risk not meaningful for our reference atta
 # which exhibit has the highest relative risk?
 idx <- which.max(relative_risk)
 (as.character(df[ idx, 'Exhibit visited' ]))
+# Visiting Capybara is associated with the highest relative risk
+
+# which exhibits have relative risk > 1?
+idx <- which(relative_risk > 1)
+((df[ idx, 'Exhibit visited' ]))
+# Visiting Capybara and Prairie Dog exhibits are both associated with relative risk > 1
